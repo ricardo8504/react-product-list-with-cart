@@ -66,3 +66,21 @@ button:focus-visible {
     background-color: #f9f9f9;
   }
 }
+
+.search-page{
+  display: flex;
+  flex-direction: row;
+}
+
+.product-list {
+  display: flex;
+  flex-wrap: wrap;
+  flex-direction: row;
+  width: 70%;
+  border: #1a1a1a;
+}
+
+.product-card {
+  width: 30%;
+  padding: 0.5rem;
+}
