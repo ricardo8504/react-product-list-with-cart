@@ -10,8 +10,9 @@ function Cart() {
                 <h2>Your Cart</h2>
                 <ul>
                     {cartContext.items.map((item) => (
-                    <li key={item.name}>{item.name}</li>
+                    <li key={item.name}>{item.name + " - " + item.quantity + " - $" + item.price}<button onClick={() => cartContext.removeProductFromCart(item)}>X</button></li>
                     ))}
+                    <li>Total: ${cartContext.items.reduce((acc, item) => acc + item.price * item.quantity, 0)}</li>
                 </ul>
             </div>)}
         </div>
