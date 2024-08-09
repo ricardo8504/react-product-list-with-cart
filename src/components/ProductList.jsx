@@ -9,11 +9,15 @@ function ProductList() {
       .then((data) => setProducts(data));
   }, []);
   return (
-    <div className="product-list">
-      {products.map((product) => (
-        <ProductCard key={product.name} product={product} />
-      ))}
+    <div  className="product-list-container">
+       <h1>Desserts</h1>
+       <div className="product-list">
+          {products.map((product) => (
+            <ProductCard key={product.name} product={product} />
+          ))}
+        </div>
     </div>
+   
   );
 }
 

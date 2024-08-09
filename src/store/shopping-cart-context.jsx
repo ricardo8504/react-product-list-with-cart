@@ -2,16 +2,19 @@ import { createContext, useState } from "react";
 
 export const ShoppingCartContext = createContext({
     items: {},
+    isShowConfirmOrder: false,
     addToCart: () =>{},
     getProductFromCart:  () =>{},
     updateProductQuantity:  () =>{},
-    removeProductFromCart:  () =>{}
+    removeProductFromCart:  () =>{},
+    showConfirmOrder:  () =>{},
+    startNewOrder:  () =>{}
 });
 
 
 export default function ShoppingCartProvider({children}) {
 
-    const [shoppingCart, setShoppingCart] = useState({items: [], description: ""});
+    const [shoppingCart, setShoppingCart] = useState({items: [], description: "", isShowConfirmOrder: false});
 
     function handleAddToCart(product) {
         setShoppingCart((prevState) => {
@@ -52,12 +55,36 @@ export default function ShoppingCartProvider({children}) {
         });
     }
 
+    //show confirm order page
+    function showConfirmOrder() {
+        setShoppingCart((prevState) => {
+        return {
+            ...prevState,
+            isShowConfirmOrder: true
+        }
+        });
+    }
+
+    //start new order
+    function startNewOrder() {
+        setShoppingCart((prevState) => {
+        return {
+            ...prevState,
+            items: [],
+            isShowConfirmOrder: false
+        }
+        });
+    }
+
     const cart = {
         items: shoppingCart.items,
+        isShowConfirmOrder: shoppingCart.isShowConfirmOrder,
         addToCart: handleAddToCart,
         getProductFromCart: getProductFromCart,
         updateProductQuantity: updateProductQuantity,
-        removeProductFromCart: removeProductFromCart
+        removeProductFromCart: removeProductFromCart,
+        showConfirmOrder: showConfirmOrder,
+        startNewOrder: startNewOrder
     };
 
     return (
