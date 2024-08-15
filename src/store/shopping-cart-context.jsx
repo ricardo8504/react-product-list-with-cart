@@ -1,4 +1,4 @@
-import { createContext, useState } from "react";
+import { createContext, useReducer } from "react";
 
 export const ShoppingCartContext = createContext({
     items: {},
@@ -9,76 +9,99 @@ export const ShoppingCartContext = createContext({
     removeProductFromCart:  () =>{},
     showConfirmOrder:  () =>{},
     startNewOrder:  () =>{}
+
 });
 
 
-export default function ShoppingCartProvider({children}) {
-
-    const [shoppingCart, setShoppingCart] = useState({items: [], description: "", isShowConfirmOrder: false});
-
-    function handleAddToCart(product) {
-        setShoppingCart((prevState) => {
+export function ShoppingCartReducer(state, action) {
+    if (action.type === 'ADD_TO_CART') {
         return {
-            ...prevState,
-            items: [...prevState.items, product]
+            ...state,
+            items: [...state.items, action.payload.product]
         }
-        });
-    }
-
-    function getProductFromCart(product) {
-        return shoppingCart.items.find(item => item.name === product.name);
-    }
-
-    //update product quantity in the cart and remove it if its quantity is 0
-    function updateProductQuantity(product, quantity) {
-        setShoppingCart((prevState) => {
-        const updatedItems = prevState.items.map(item => {
-            if (item.name === product.name) {
-            item.quantity = quantity;
+    } else if (action.type === 'UPDATE_PRODUCT_QUANTITY') {
+        const updatedItems = state.items.map(item => {
+            if (item.name === action.payload.product.name) {
+                item.quantity = action.payload.quantity;
             }
             return item;
         });
         return {
-            ...prevState,
+            ...state,
             items: updatedItems.filter(item => item.quantity > 0)
         }
+    } else if (action.type === 'REMOVE_PRODUCT_FROM_CART') {
+        return {
+            ...state,
+            items: state.items.filter(item => item.name !== action.payload.product.name)
+        }
+    } else if (action.type === 'SHOW_CONFIRM_ORDER') {
+        return {
+            ...state,
+            isShowConfirmOrder: true
+        }
+    } else if (action.type === 'START_NEW_ORDER') {
+        return {
+            ...state,
+            items: [],
+            isShowConfirmOrder: false
+        }
+    }          
+    return state;
+}
+
+export default function ShoppingCartProvider({children}) {
+    const [shoppingCartState, shoppingCartDispatch] = useReducer(ShoppingCartReducer, 
+        {
+            items: [], 
+            description: "", 
+            isShowConfirmOrder: false
+        });
+
+    function handleAddToCart(product) {
+        shoppingCartDispatch({type: 'ADD_TO_CART', 
+            payload: {
+                product: product
+            }
+        });
+    }
+
+    function getProductFromCart(product) {
+        return shoppingCartState.items.find(item => item.name === product.name);
+    }
+
+    //update product quantity in the cart and remove it if its quantity is 0
+    function updateProductQuantity(product, quantity) {
+        shoppingCartDispatch({type: 'UPDATE_PRODUCT_QUANTITY', 
+            payload: {
+                product: product, 
+                quantity: quantity
+            }
         });
     } 
 
     //remove product from the cart
     function removeProductFromCart(product) {
-        setShoppingCart((prevState) => {
-        return {
-            ...prevState,
-            items: prevState.items.filter(item => item.name !== product.name)
-        }
-        });
+        shoppingCartDispatch({type: "REMOVE_PRODUCT_FROM_CART", 
+            payload: {
+                product: product
+            }
+        })
     }
 
     //show confirm order page
     function showConfirmOrder() {
-        setShoppingCart((prevState) => {
-        return {
-            ...prevState,
-            isShowConfirmOrder: true
-        }
-        });
+        shoppingCartDispatch({type: "SHOW_CONFIRM_ORDER"});
     }
 
     //start new order
     function startNewOrder() {
-        setShoppingCart((prevState) => {
-        return {
-            ...prevState,
-            items: [],
-            isShowConfirmOrder: false
-        }
-        });
+        shoppingCartDispatch({type: "START_NEW_ORDER"});
     }
 
     const cart = {
-        items: shoppingCart.items,
-        isShowConfirmOrder: shoppingCart.isShowConfirmOrder,
+        items: shoppingCartState.items,
+        isShowConfirmOrder: shoppingCartState.isShowConfirmOrder,
         addToCart: handleAddToCart,
         getProductFromCart: getProductFromCart,
         updateProductQuantity: updateProductQuantity,
